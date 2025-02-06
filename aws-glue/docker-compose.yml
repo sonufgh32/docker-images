@@ -1,0 +1,18 @@
+version: '3.8'
+services:
+  glue_jupyter_lab:
+    image: amazon/aws-glue-libs:glue_libs_4.0.0_image_01
+    container_name: glue_jupyter_lab
+    restart: unless-stopped
+    environment:
+      - AWS_PROFILE=default
+      - DISABLE_SSL=true
+    volumes:
+      - C:\Users\username\.aws:/home/glue_user/.aws
+      - C:\jupyter_workspace\:/home/glue_user/workspace/jupyter_workspace/
+    ports:
+      - "4040:4040"
+      - "18080:18080"
+      - "8998:8998"
+      - "8888:8888"
+    command: ["-c", "/home/glue_user/jupyter/jupyter_start.sh"]
