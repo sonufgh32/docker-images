@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  worker1:
+    image: docker-master:latest
+    container_name: worker1
+    hostname: worker1
+    environment:
+      - NODE_TYPE=worker
+    ports:
+      - "5072:50070"
+      - "8089:8088"
+      - "5075:50075"
+      - "50475:50475"
+    restart: unless-stopped
+
+  worker2:
+    image: docker-master:latest
+    container_name: worker2
+    hostname: worker2
+    environment:
+      - NODE_TYPE=worker
+    ports:
+      - "5073:50070"
+      - "8087:8088"
+      - "5076:50075"
+      - "50476:50475"
+  master:
+    image: docker-master:latest
+    container_name: master
+    hostname: master
+    environment:
+      - NODE_TYPE=master
+      - WORKER_NODE_COUNT=2
+    ports:
+      - "5071:50070"
+      - "8088:8088"
+      - "9870:9870"
+      - "50470:50470"
+      - "5090:50090"
+    depends_on:
+      - worker1
+      - worker2
+
