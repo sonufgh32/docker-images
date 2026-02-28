@@ -1,0 +1,99 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    env_file:
+      - ./env/mysql.env
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./sql/grafana_mysql.sql:/var/lib/mysql/grafana_mysql.sql
+    networks:
+      - shiv
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+      interval: 10s
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: phpmyadmin
+    env_file:
+      - ./env/phpmyadmin.env
+    ports:
+      - "8080:80"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - shiv
+  
+  postgres:
+    image: postgres:15
+    container_name: sonarqube_db
+    restart: always
+    env_file:
+      - ./env/postgres.env
+    networks:
+      - shiv
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  sonarqube:
+    image: sonarqube:community
+    container_name: sonarqube
+    restart: always
+    depends_on:
+      - postgres
+    ports:
+      - "9000:9000"
+    networks:
+      - shiv
+    env_file:
+      - ./env/sonarqube.env
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_logs:/opt/sonarqube/logs
+      - sonarqube_extensions:/opt/sonarqube/extensions
+  
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./env/grafana.env
+    networks:
+      - shiv
+    volumes:
+      - grafana_data:/var/lib/grafana
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - prometheus_data:/etc/prometheus
+      # mount local config file if you have one
+      # - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    networks:
+      - shiv
+
+volumes:
+  mysql_data:
+  postgres_data:
+  sonarqube_data:
+  sonarqube_logs:
+  sonarqube_extensions:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  shiv:
+    driver: bridge
+  shivcloud:
+    driver: bridge
