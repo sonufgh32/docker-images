@@ -60,8 +60,11 @@ services:
       - sonarqube_extensions:/opt/sonarqube/extensions
   
   grafana:
-    image: grafana/grafana:latest
+    build:
+      context: ./grafana
+      dockerfile: Dockerfile
     container_name: grafana
+    user: "0"
     ports:
       - "3000:3000"
     env_file:
@@ -70,6 +73,18 @@ services:
       - shiv
     volumes:
       - grafana_data:/var/lib/grafana
+      - ./grafana/loki-local-config.yaml:/etc/loki/local-config.yaml
+      - ./grafana/config.alloy:/etc/alloy/config.alloy
+  
+  ubuntu:
+    image: ubuntu:latest
+    container_name: ubuntu
+    # interactive shell so you can install packages or run commands
+    command: bash
+    tty: true
+    stdin_open: true
+    networks:
+      - shiv
 
   prometheus:
     image: prom/prometheus:latest

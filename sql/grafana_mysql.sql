@@ -163,4 +163,27 @@ grant select on performance_schema.* to my2@'mysql';
 
 CREATE USER 'grafana'@'%' IDENTIFIED BY 'grafana';
 GRANT SELECT ON my2.* TO 'grafana'@'%';
+
+CREATE DATABASE exampledb;
+CREATE TABLE exampledb.simple_table (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  username varchar(45) DEFAULT NULL,
+  total decimal(10,0) DEFAULT NULL,
+  PRIMARY KEY (id)
+);
+INSERT INTO exampledb.simple_table
+  (username,  total)
+VALUES
+  ('Cat',56),
+  ('Dog',35),
+  ('Lizard',41),
+  ('Crocodile',22),
+  ('Koala',26),
+  ('Cassowary',29),
+  ('Peacock',19),
+  ('Emu',10),
+  ('Kangaroo',13);
+
+GRANT SELECT ON exampledb.simple_table TO 'grafana'@'%';
+
 FLUSH PRIVILEGES;
