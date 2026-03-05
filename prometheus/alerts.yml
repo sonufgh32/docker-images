@@ -1,0 +1,18 @@
+groups:
+- name: Instance Status
+  rules:
+  - alert: InstanceDown
+    expr: up == 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      description: Instance is down
+  - alert: InstanceUp
+    expr: up == 1
+    for: 1m
+    labels:
+      severity: info
+    annotations:
+      summary: Instance is up
+      description: "{{ $labels.job }} is reachable"
